@@ -1,2 +1,5 @@
 uploader/*
 .vscode/*
+*.o
+*.d
+*.elf
