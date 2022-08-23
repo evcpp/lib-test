@@ -1,43 +1,33 @@
-# SRCS = $(wildcard *.cpp) 
-# OBJS = $(patsubst %.cpp, %.o, $(SRCS))
-# EXECUTABLE_FILE = program.elf
-# LDFLAGS =-static-libstdc++ -pthread -mcpu=arm9 -marm -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g -Xlinker --gc-sections -s
-# COMPFLAGS = -mcpu=arm9 -marm -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g -I"..\framework\include\\" -std=c++0x -MMD -MP -c
+ifeq ($(OS),Windows_NT)
+	PATH_PREFIX = C:/arm-gcc/bin/
+	COMPILER_PREFIX = arm-evcpp-linux-gnueabi-
+	CLEAR_COMMAND = del /Q /F /S  .\*.o .\*.d .\*.elf
+	INCLUDE_PATH = ..\\framework\\include\\
+	API_PATH = ..\\framework\\api\\
+endif
 
+COMPILER = $(PATH_PREFIX)$(COMPILER_PREFIX)g++
 
-# ifeq ($(OS),Windows_NT)
-# 	PATH_PREFIX = C:/arm-gcc/bin/
-# 	COMPILER_PREFIX = arm-evcpp-linux-gnueabi-
-# 	CLEAR_COMMAND = del /Q /F /S  .\*.o .\*.d .\*.elf
-# endif
+CFLAGS = -mcpu=arm9 -marm -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g 
+CFLAGS += -I"$(INCLUDE_PATH)" -std=c++0x -MMD -MP -c
 
-# COMPILER = $(PATH_PREFIX)$(COMPILER_PREFIX)gcc
+LDFLAGS = -static-libstdc++ -pthread -mcpu=arm9 -marm -O3 -fmessage-length=0  
+LDFLAGS += -fsigned-char -ffunction-sections -fdata-sections -Wall  -g -Xlinker --gc-sections -s
 
-# all: $(SRCS) $(OBJS) $(EXECUTABLE_FILE)
+SOURCES = $(wildcard *.cpp)
 
-# $(EXECUTABLE_FILE):$(OBJS)
-# 	$(COMPILER) $(LDFLAGS) $(OBJS) -o $@ -L"..\framework\api\" -levcppapi.a -lm
+OBJECTS = $(SOURCES:.cpp=.o)
 
-# %.o: %.cpp
-# 	$(COMPILER) $(COMPFLAGS) $< -o $@
+EXECUTABLE = program.elf
 
-# clean:
-# 	$(CLEAR_COMMAND)
-
-override PREFIX = C:/arm-gcc/bin/arm-evcpp-linux-gnueabi-
-includePath = C:\\evcpp\\framework\\include\\
-apiPath = C:\\evcpp\\framework\\api
-
-PREFIX ?= $(CROSS_COMPILE)
-CC=$(PREFIX)g++
-CFLAGS= -mcpu=arm9 -marm -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g -I"$(includePath)" -std=c++0x -MMD -MP -c
-LDFLAGS=-static-libstdc++ -pthread -mcpu=arm9 -marm -O3 -fmessage-length=0 -fsigned-char -ffunction-sections -fdata-sections -Wall  -g -Xlinker --gc-sections -s 
-SOURCES=$(wildcard *.cpp)
-OBJECTS=$(SOURCES:.cpp=.o)
-EXECUTABLE=program.elf
 all: $(SOURCES) $(EXECUTABLE)
+
 $(EXECUTABLE): $(OBJECTS) 
-	$(CC) $(LDFLAGS) $(OBJECTS)  -o $@ -L"C:/evcpp/framework/api/" -l:evcppapi.a -lm
+	$(COMPILER) $(LDFLAGS) $(OBJECTS)  -o $@ -L"$(API_PATH)" -l:evcppapi.a -lm
 
 .cpp.o:
-	$(CC) $(CFLAGS) $< -o $@
+	$(COMPILER) $(CFLAGS) $< -o $@
+
+.PHONY:clean
+clean:
+	$(CLEAR_COMMAND)
